@@ -27,7 +27,12 @@ export const fetchUnitSummary = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<UnitSummary> => {
     const headers = { Authorization: `Bearer ${data.token}`, Accept: "application/json" };
     const get = async (path: string) => {
-      const r = await fetch(BASE + path, { headers });
+      let r: Response;
+      try {
+        r = await fetch(BASE + path, { headers, signal: AbortSignal.timeout(25000) });
+      } catch {
+        throw new Error("Servidor da DKSOFT não respondeu. Tente novamente em instantes.");
+      }
       if (!r.ok) {
         let msg = `Erro ${r.status}`;
         try {
