@@ -256,7 +256,7 @@ function Empty({ onAdd }: { onAdd: () => void }) {
 }
 
 function UnitPanel({ units, selected, setSelected, unit, res }: {
-  units: Unit[]; selected: string | null; setSelected: (s: string | null) => void; unit: Unit | null; res?: Result;
+  units: Unit[]; selected: string | null; setSelected: (s: string | null) => void; unit: Unit | null; res: Result | undefined;
 }) {
   return (
     <div className="rounded-2xl border bg-card p-4 shadow-card sm:p-5">
