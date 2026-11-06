@@ -69,7 +69,7 @@
   --card-foreground: oklch(0.22 0.03 200);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.22 0.03 200);
-  --primary: oklch(0.42 0.08 190);
+  --primary: oklch(0.4 0.14 25);
   --primary-foreground: oklch(0.98 0.01 85);
   --secondary: oklch(0.94 0.015 85);
   --secondary-foreground: oklch(0.3 0.04 200);
@@ -82,16 +82,16 @@
   --success: oklch(0.58 0.13 155);
   --border: oklch(0.9 0.012 85);
   --input: oklch(0.88 0.015 85);
-  --ring: oklch(0.42 0.08 190);
+  --ring: oklch(0.4 0.14 25);
   --gold: oklch(0.78 0.14 80);
   --silver: oklch(0.75 0.01 240);
   --bronze: oklch(0.62 0.1 50);
-  --chart-1: oklch(0.42 0.08 190);
+  --chart-1: oklch(0.4 0.14 25);
   --chart-2: oklch(0.8 0.15 75);
   --chart-3: oklch(0.58 0.13 155);
   --chart-4: oklch(0.58 0.2 27);
   --chart-5: oklch(0.5 0.1 250);
-  --gradient-hero: linear-gradient(135deg, oklch(0.32 0.07 195), oklch(0.45 0.09 180));
+  --gradient-hero: linear-gradient(135deg, oklch(0.28 0.1 22), oklch(0.42 0.15 25));
   --shadow-card: 0 1px 2px oklch(0.2 0.03 200 / 6%), 0 8px 24px -12px oklch(0.2 0.03 200 / 18%);
 }
 
