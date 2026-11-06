@@ -8,7 +8,7 @@ export function toISO(d: Date) {
 }
 
 export function parseISO(s: string) {
-  const [y, m, d] = s.split("-").map(Number);
+  const [y = 1970, m = 1, d = 1] = s.split("-").map(Number);
   return new Date(y, m - 1, d);
 }
 
