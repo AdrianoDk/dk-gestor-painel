@@ -13,7 +13,7 @@ describe("período limitado a 31 dias", () => {
   });
 });
 
-oyalties", () => {
+describe("royalties", () => {
   it("percentual sobre recebido mais taxa fixa", () => {
     expect(calcRoyalty({ recebido: 10000, despesas: 4000, percentual: 8, taxaFixa: 500, base: "recebido" }).total).toBe(1300);
   });
