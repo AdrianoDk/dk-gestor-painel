@@ -70,7 +70,7 @@ function Dashboard() {
   async function load() {
     if (!rangeValid) return;
     setResults(Object.fromEntries(units.map((u) => [u.id, { status: "loading" } as Result])));
-    // até 2 unidades em paralelo para respeitar o limite da API
+    // uma unidade por vez: a API aceita até 5 consultas simultâneas
     const queue = [...units];
     const worker = async () => {
       while (queue.length) {
@@ -83,7 +83,7 @@ function Dashboard() {
         }
       }
     };
-    await Promise.all([worker(), worker()]);
+    await worker();
   }
 
   useEffect(() => {
