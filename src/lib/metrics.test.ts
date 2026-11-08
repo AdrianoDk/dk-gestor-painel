@@ -6,7 +6,7 @@ describe("pdescribe("período limitado a 31 dias", () => {
     expect(validateRange("2026-10-01", "2026-10-31")).toBeNull();
   });
   it("recusa 32 dias", () => {
-    expect(validateRange("2026-10-01", "2026-11-01")).toMatch(/31 dias/);
+    expect(validateRange("2026-10-01", "2026-11-01")).toContain("31 dias");
   });
   it("recusa data inicial depois da final", () => {
     expect(validateRange("2026-11-05", "2026-11-01")).not.toBeNull();
