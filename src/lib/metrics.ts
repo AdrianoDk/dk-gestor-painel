@@ -1,4 +1,4 @@
-export type Preset = "hoje" | "semana" | "25dias" | "custom";
+export type Preset = "hoje" | "custom";
 
 export function toISO(d: Date) {
   const y = d.getFullYear();
@@ -18,26 +18,17 @@ export function addDays(d: Date, n: number) {
   return c;
 }
 
-/** Hoje = só hoje; Última semana = 7 dias incluindo hoje; Últimos 25 dias = 25 dias incluindo hoje. */
-export function presetRange(p: Exclude<Preset, "custom">, today = new Date()) {
-  const end = toISO(today);
-  if (p === "hoje") return { start: end, end };
-  if (p === "semana") return { start: toISO(addDays(today, -6)), end };
-  return { start: toISO(addDays(today, -24)), end };
+export const MAX_DAYS = 31;
+
+/** Quantidade de dias corridos, incluindo as duas datas. */
+export function daysInclusive(start: string, end: string) {
+  return Math.round((parseISO(end).getTime() - parseISO(start).getTime()) / 86400000) + 1;
 }
 
-/** Divide o período em blocos de no máximo 31 dias (limite da API). */
-export function splitPeriod(start: string, end: string, maxDays = 31) {
-  const out: { start: string; end: string }[] = [];
-  let cur = parseISO(start);
-  const last = parseISO(end);
-  while (cur <= last) {
-    let chunkEnd = addDays(cur, maxDays - 1);
-    if (chunkEnd > last) chunkEnd = last;
-    out.push({ start: toISO(cur), end: toISO(chunkEnd) });
-    cur = addDays(chunkEnd, 1);
-  }
-  return out;
+export function validateRange(start: string, end: string): string | null {
+  if (!start || !end || start > end) return "A data inicial deve ser antes da data final.";
+  if (daysInclusive(start, end) > MAX_DAYS) return `Filtre no máximo ${MAX_DAYS} dias por vez.`;
+  return null;
 }
 
 export type RoyaltyBase = "recebido" | "liquido";
