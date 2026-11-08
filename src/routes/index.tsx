@@ -5,7 +5,7 @@ import {
   UserMinus, UserPlus, Users, Trophy, X, Eye, EyeOff,
 } from "lucide-react";
 import { fetchUnitSummary, type UnitSummary } from "@/lib/dksoft.functions";
-import { brl, calcRoyalty, presetRange, splitPeriod, type Preset, type RoyaltyBase } from "@/lib/metrics";
+import { brl, calcRoyalty, toISO, validateRange, type Preset, type RoyaltyBase } from "@/lib/metrics";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -44,7 +44,7 @@ function Dashboard() {
   const [units, setUnits] = useState<Unit[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [preset, setPreset] = useState<Preset>("hoje");
-  const [custom, setCustom] = useState(() => presetRange("semana"));
+  const [custom, setCustom] = useState(() => { const t = toISO(new Date()); return { start: t, end: t }; });
   const [results, setResults] = useState<Record<string, Result>>({});
   const [metric, setMetric] = useState<Metric>("recebido");
   const [selected, setSelected] = useState<string | null>(null);
@@ -62,27 +62,28 @@ function Dashboard() {
     if (loaded) localStorage.setItem(STORE, JSON.stringify(units));
   }, [units, loaded]);
 
-  const range = preset === "custom" ? custom : presetRange(preset);
-  const rangeValid = range.start <= range.end && splitPeriod(range.start, range.end).length <= 13;
+  const todayISO = toISO(new Date());
+  const range = preset === "custom" ? custom : { start: todayISO, end: todayISO };
+  const rangeError = validateRange(range.start, range.end);
+  const rangeValid = !rangeError;
 
   async function load() {
     if (!rangeValid) return;
-    const chunks = splitPeriod(range.start, range.end);
     setResults(Object.fromEntries(units.map((u) => [u.id, { status: "loading" } as Result])));
-    // até 2 unidades em paralelo para respeitar o limite da API
+    // uma unidade por vez: a API aceita até 5 consultas simultâneas
     const queue = [...units];
     const worker = async () => {
       while (queue.length) {
         const u = queue.shift()!;
         try {
-          const data = await fetchUnitSummary({ data: { token: u.token, chunks, start: range.start, end: range.end } });
+          const data = await fetchUnitSummary({ data: { token: u.token, start: range.start, end: range.end } });
           setResults((r) => ({ ...r, [u.id]: { status: "ok", data } }));
         } catch (e) {
           setResults((r) => ({ ...r, [u.id]: { status: "error", msg: e instanceof Error ? e.message : "Falha" } }));
         }
       }
     };
-    await Promise.all([worker(), worker()]);
+    await worker();
   }
 
   useEffect(() => {
@@ -139,7 +140,7 @@ function Dashboard() {
         </div>
         <div className="mx-auto max-w-7xl px-4 pb-5 sm:px-6">
           <div className="flex flex-wrap items-center gap-2">
-            {([["hoje", "Hoje"], ["semana", "Última semana"], ["25dias", "Últimos 25 dias"], ["custom", "Período"]] as const).map(([k, l]) => (
+            {([["hoje", "Hoje"], ["custom", "Período"]] as const).map(([k, l]) => (
               <button key={k} onClick={() => setPreset(k)} className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${preset === k ? "bg-primary-foreground text-primary" : "bg-primary-foreground/10 hover:bg-primary-foreground/20"}`}>
                 {l}
               </button>
@@ -152,7 +153,7 @@ function Dashboard() {
               </div>
             )}
           </div>
-          {!rangeValid && <p className="mt-2 text-sm text-accent">Período inválido (máximo de 1 ano e data inicial antes da final).</p>}
+          {rangeError && <p role="alert" className="mt-2 inline-block rounded-lg bg-primary-foreground px-3 py-1.5 text-sm font-semibold text-destructive">{rangeError}</p>}
         </div>
       </header>
 

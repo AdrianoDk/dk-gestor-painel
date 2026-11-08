@@ -1,19 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { calcRoyalty, presetRange, splitPeriod } from "./metrics";
+import { calcRoyalty, validateRange } from "./metrics";
 
-describe("períodos", () => {
-  const today = new Date(2026, 10, 6);
-  it("última semana cobre 7 dias incluindo hoje", () => {
-    expect(presetRange("semana", today)).toEqual({ start: "2026-10-31", end: "2026-11-06" });
+describe("período limitado a 31 dias", () => {
+  it("aceita exatamente 31 dias incluindo as duas datas", () => {
+    expect(validateRange("2026-10-01", "2026-10-31")).toBeNull();
   });
-  it("últimos 25 dias cobre 25 dias incluindo hoje", () => {
-    expect(presetRange("25dias", today)).toEqual({ start: "2026-10-13", end: "2026-11-06" });
+  it("recusa 32 dias", () => {
+    expect(validateRange("2026-10-01", "2026-11-01")).toContain("31 dias");
   });
-  it("divide períodos acima de 31 dias", () => {
-    expect(splitPeriod("2026-01-01", "2026-03-01")).toEqual([
-      { start: "2026-01-01", end: "2026-01-31" },
-      { start: "2026-02-01", end: "2026-03-01" },
-    ]);
+  it("recusa data inicial depois da final", () => {
+    expect(validateRange("2026-11-05", "2026-11-01")).not.toBeNull();
   });
 });
 
